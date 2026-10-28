@@ -1,0 +1,152 @@
+QUESTION-BY-QUESTION ANALYSIS GUIDE
+MySQL Workbench | MySQL Server 8.0.46
+
+This guide says what each assignment question asks, what the SQL returns, and why the query pattern fits. Run the matching numbered block in the Project 1 or Project 2 solution file. Each solution script starts with USE for its database. The table setup scripts and all source CSVs are included in this ZIP.
+
+PROJECT 1 — MOBILE TECH RETAILERS (Q1–Q10)
+
+Q1 — States with customers who purchased since 2005
+Returns: Country, State, distinct qualifying customer count.
+Method: joins FACT_TRANSACTIONS to DIM_CUSTOMER and DIM_LOCATION; filters Date >= 2005-01-01; groups by Country/State. The schema has no active-status field, so a qualifying purchase is the documented proxy for active. No CTE or window function is needed.
+
+Q2 — U.S. state with the most Samsung units
+Returns: the leading State and TotalSamsungUnitsSold.
+Method: joins transactions through model and manufacturer to location; filters Samsung and the supplied U.S. country codes; sums Quantity by state; orders descending and takes one top state. No CTE/window is needed. The state name is the deterministic tie-breaker if volumes tie.
+
+Q3 — Transaction counts by model, ZIP code, and state
+Returns: Model_Name, ZipCode, State, TransactionCount.
+Method: joins fact rows to model and location; counts fact rows per requested group. No CTE/window is needed; one fact row is treated as one transaction.
+
+Q4 — Most affordable phone model
+Returns: every Model_Name tied at the minimum Unit_Price, with its price.
+Method: compares Unit_Price with a scalar MIN subquery. This preserves ties; no CTE/window is needed.
+
+Q5 — Average selling price per model among the top five manufacturers by unit volume
+Returns: Manufacturer_Name, Model_Name, realized AverageSellingPrice, UnitsSold.
+Method: a CTE first ranks manufacturers by total Quantity and selects five; the outer aggregation computes SUM(TotalPrice)/SUM(Quantity) per model. CTE is useful because the question has a clear top-manufacturer step followed by a per-model calculation. No window function is needed.
+
+Q6 — Customers whose average spend exceeded $500 in 2009
+Returns: customer ID/name and average transaction spend.
+Method: filters transactions to calendar year 2009, groups by customer, then uses HAVING AVG(TotalPrice) > 500. WHERE filters source rows; HAVING filters grouped results. No CTE/window is needed.
+
+Q7 — Models consistently in the annual top five in 2008, 2009, and 2010
+Returns: annual top-five model rows with year, units, rank, YearsInTopFive, and TopFiveInAllThreeYears.
+Method: aggregates units per model/year; RANK() OVER (PARTITION BY Year ORDER BY UnitsSold DESC) finds each year's top five and keeps ties; a grouped coverage step checks how many of the three years each model appears. CTEs make the annual total, rank, and coverage steps readable. A window function is appropriate for ranking by year.
+Data result: the supplied transactions produce 26 annual top-five rows (ties retained), but no model reaches the top five in all three years. The query returns annual evidence and marks the all-three-years answer “No” instead of displaying an unexplained blank result.
+
+Q8 — Manufacturer ranked second in sales revenue in 2009 and 2010
+Returns: Year, Manufacturer_Name, Revenue for each second-place manufacturer; ties at rank two are retained.
+Method: aggregates revenue by manufacturer/year, then uses DENSE_RANK() partitioned by year and filters rank 2. A window function is appropriate because ranks restart for each year. The derived tables keep the steps readable; a CTE is optional.
+
+Q9 — Manufacturers with sales in 2010 and none in 2009
+Returns: manufacturer IDs and names meeting both conditions.
+Method: correlated EXISTS and NOT EXISTS checks sales activity through each manufacturer's models. This directly expresses presence in 2010 and absence in 2009. No CTE/window is needed.
+Data result: the included CSVs return 0 rows because every manufacturer with 2010 sales also has 2009 sales. This is a correct empty result set, not a NULL row.
+
+Q10 — Top 100 lifetime spenders' annual metrics and year-over-year spend change
+Returns: customer ID/name, Year, annual spend and quantity, YoY spend-change percentage, average annual spend, and average annual quantity.
+Method: a derived table selects the 100 customers with the greatest lifetime spend; annual totals are joined to a customer-by-calendar-year grid from DIM_DATE; missing years are zero-filled; window AVG computes per-customer annual averages; a prior-year join calculates percentage change. CTEs are optional; the window averages are appropriate. Percentage change is NULL when prior-year spend is zero or unavailable because percentage growth from a zero baseline is undefined.
+
+PROJECT 2 — QUICKBITE ANALYTICS (Q1–Q21)
+
+Q1 — Cities with orders in 2022, counts, and revenue
+Returns: City, TotalOrders, TotalRevenue.
+Method: filters FACT_ORDERS with a half-open date range for 2022, joins DIM_RESTAURANT, groups by its City, and aggregates. FACT_ORDERS has no City column, so restaurant City is the stated proxy. No CTE/window is needed.
+
+Q2 — Revenue and order volume by cuisine
+Returns: each Cuisine_Type with TotalRevenue and OrderCount, sorted by revenue (then order count).
+Method: joins orders to restaurants, groups by cuisine, sums amount, and counts orders. Showing all cuisines makes both revenue and volume comparable; the leading revenue row answers which generates the most revenue. No CTE/window is needed.
+
+Q3 — Restaurant orders, revenue, and average order value
+Returns: every restaurant with total orders, revenue, and average order amount, highest revenue first.
+Method: LEFT JOIN preserves restaurants with no orders; COUNT/SUM/AVG aggregate each restaurant. No CTE/window is needed.
+
+Q4 — Largest single order per restaurant
+Returns: restaurant ID/name/cuisine, order ID, and order amount; tied maximum orders are all included.
+Method: correlated MAX subquery finds the maximum amount for that restaurant. No CTE/window is needed.
+
+Q5 — Top 10 customers by lifetime spend
+Returns: customer ID/name/city, total orders, lifetime spend.
+Method: joins customers to orders, groups by customer, sorts by spend, and LIMIT 10. No CTE/window is needed; customer ID breaks ties deterministically.
+
+Q6 — Delivery counts and average delivery time per agent
+Returns: each agent, completed-delivery count, average delivery minutes, highest count first.
+Method: LEFT JOIN preserves agents with no matched orders; COUNT/AVG aggregate. No CTE/window is needed.
+
+Q7 — Average delivery time by city, fastest first
+Returns: City and AverageDeliveryMinutes.
+Method: joins orders to restaurants, groups by restaurant City, averages Delivery_Minutes, and sorts ascending. Restaurant City is used because the fact table has no city field. No CTE/window is needed.
+
+Q8 — Restaurants with 2023 orders and no 2022 orders
+Returns: restaurant ID/name/city.
+Method: correlated EXISTS for at least one 2023 order and NOT EXISTS for any 2022 order. Date ranges avoid applying YEAR() to the filtered date column. No CTE/window is needed.
+
+Q9 — Customers with more than five orders and average order value above ₹600
+Returns: customer ID/name, order count, average order value.
+Method: groups orders by customer and applies both aggregate thresholds in HAVING. No CTE/window is needed.
+
+Q10 — Annual platform revenue, orders, and average order value (2020–2023)
+Returns: Year, TotalRevenue, TotalOrders, AverageOrderValue for years with transactions in the requested range.
+Method: date-range WHERE, GROUP BY YEAR(Order_Date), and SUM/COUNT/AVG. No CTE/window is needed.
+
+Q11 — Highest-rated restaurant(s) within each cuisine
+Returns: cuisine, restaurant ID/name, average order rating, total orders; rating ties are retained.
+Method: aggregates average customer Rating and order count per restaurant, then RANK() OVER (PARTITION BY Cuisine_Type ORDER BY AverageOrderRating DESC) and keeps rank 1. A window function is appropriate for a best-per-group question.
+
+Q12 — Payment mode usage and revenue share
+Returns: payment mode, transaction count, revenue, percent of total platform revenue.
+Method: GROUP BY Payment_Mode and a scalar subquery for total revenue. No CTE/window is needed.
+
+Q13 — Highest percentage revenue growth from 2022 to 2023
+Returns: restaurant(s) tied for highest growth, with both annual revenues and growth percentage.
+Method: CTEs aggregate each restaurant's 2022/2023 revenue, calculate percent change only where 2022 revenue is positive, and RANK() identifies all leaders. CTEs clarify the stages; a window function preserves ties at first place.
+
+Q14 — Annual orders and revenue for the five most active customers
+Returns: customer ID/name, year, orders, revenue, for 2020–2023.
+Method: a derived table selects the five customers with most lifetime orders; the outer query aggregates their yearly orders/revenue in the requested years. CTE/window is not required.
+
+Q15 — Agent deployment and workload by assigned city
+Returns: City, assigned-agent count, delivered-order count, average orders per agent.
+Method: LEFT JOIN agents to orders, group by agent-assigned City, count distinct agents, count orders, and divide. LEFT JOIN keeps cities with assigned agents but no matching deliveries. No CTE/window is needed.
+
+Q16 — Same customer name/email assigned different IDs
+Returns: duplicate name/email groups, distinct ID count, and the IDs.
+Method: GROUP BY name/email and HAVING COUNT(DISTINCT CustomerID) > 1. No CTE/window is needed.
+Expected pattern from anomaly guide: duplicate accounts include IDs 501–505.
+
+Q17 — Agents with more than 50 orders on one calendar day
+Returns: agent ID/name, order date, daily order count.
+Method: groups by agent and DATE(Order_Date), then HAVING COUNT(*) > 50. DATE() makes the daily grain explicit. No CTE/window is needed.
+Assignment reference says AgentID 7, 2023-03-15, 85 orders; counting the supplied FACT_ORDERS.csv gives 87 total rows for that agent/date. The query reports the raw-data total of 87.
+
+Q18 — Orders above three times the platform-wide average amount
+Returns: order ID, customer/restaurant IDs, date, amount, platform average.
+Method: scalar AVG(Order_Amount) subquery defines the platform baseline; WHERE filters individual orders above 3x that value. No CTE/window is needed.
+Expected anomaly guide: 20 outlier orders.
+
+Q19 — Delivery times over 180 minutes
+Returns: order, restaurant, agent, city, delivery minutes.
+Method: joins orders to restaurant and agent dimensions and filters Delivery_Minutes > 180. Restaurant City supplies city because FACT_ORDERS has no City column. No CTE/window is needed.
+Expected anomaly guide: 30 orders.
+
+Q20 — Orders before customer membership date
+Returns: order ID/customer/name, membership date, order date.
+Method: joins each order to its customer and filters Order_Date < Member_Since. No CTE/window is needed.
+Assignment anomaly reference says 15 orders. Direct comparison of every FACT_ORDERS.CustomerID/Order_Date with DIM_CUSTOMER.CustomerID/Member_Since in the supplied CSVs finds 4,016 pre-membership orders. The query correctly reports the supplied rows; the dataset/reference discrepancy is not hidden by a hard-coded filter.
+
+Q21 — Orders associated with duplicate customer accounts
+Returns: duplicate identity, presumed original ID, duplicate ID, transaction customer ID, and order details.
+Method: CTE finds duplicate name/email groups and maps the lowest CustomerID to a display-only presumed original; joins orders for the other IDs. Null-safe equality (<=>) handles NULL identity fields consistently. CTEs are appropriate for the multi-step mapping; no window function is required.
+Expected anomaly guide: 15 orphan/duplicate-account orders.
+
+NOTES ON SQL FEATURES
+- WHERE filters input rows before grouping; HAVING filters groups after aggregation.
+- CTEs (WITH) separate multi-stage logic; they are used where they improve readability, not as a requirement for every query.
+- Window functions (RANK, DENSE_RANK, AVG OVER) are used for per-year/per-cuisine rankings or customer-level annual averages. These are supported by MySQL 8.0.46.
+- Date filters use inclusive start/exclusive next-year boundaries where possible. YEAR()/DATE() are used where grouping by a date component is required.
+
+DATASET VS ASSIGNMENT REFERENCE CHECK
+For the supplied QuickBite CSV files, two reference counts do not match direct query logic:
+- Q17: the brief says 85 orders for AgentID 7 on 2023-03-15; FACT_ORDERS.csv contains 87 rows for that agent/date. The Q17 query uses the requested >50 threshold and reports the actual count (87).
+- Q20: the anomaly guide says 15 pre-membership orders; comparing all order dates to the matching customer Member_Since values in the supplied files yields 4,016 rows. The Q20 query implements the question literally and returns the rows present in the CSVs.
+Use the result calculated from the imported data. Do not force these counts to the reference by adding hard-coded IDs, dates, or row limits.

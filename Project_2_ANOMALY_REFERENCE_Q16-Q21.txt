@@ -1,0 +1,11 @@
+QuickBite anomaly reference guide — additional anomaly questions Q16–Q21
+
+The supplied QuickBite assignment brief describes these embedded patterns:
+- Q16 / duplicate records: five customers share names and email addresses while having different CustomerIDs (IDs 501–505).
+- Q17 / abnormal activity: AgentID 7 completed 85 orders on 2023-03-15. The query flags more than 50 orders per agent per calendar day.
+- Q18 / outlier amounts: 20 orders have Order_Amount values from ₹9,500 to ₹18,000 (about 6–8 times the platform average). The query flags amounts greater than 3 times the data-wide average.
+- Q19 / SLA breach: 30 orders have Delivery_Minutes from 181 to 360 minutes. The query flags values above 180.
+- Q20 / integrity violation: 15 orders predate the corresponding customer's Member_Since date.
+- Q21 / orphan transactions: 15 orders are linked to duplicate CustomerIDs 501–505.
+
+All queries calculate results from imported data; they do not hard-code the anomaly IDs, dates, order counts, or amount ranges. Q21 shows original and duplicate IDs using the lowest ID in each duplicate name/email group as the presumed original for display. This convention is not proof of account chronology.

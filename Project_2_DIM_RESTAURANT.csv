@@ -1,0 +1,51 @@
+RestaurantID,Restaurant_Name,City,Cuisine_Type,Avg_Rating,Opening_Year
+1,Spice Garden,Delhi,North Indian,4.5,2011
+2,Dragon Palace,Hyderabad,Chinese,4.5,2018
+3,Biryani House,Ahmedabad,South Indian,4.3,2008
+4,The Pizza Stop,Mumbai,South Indian,3.7,2016
+5,Dosa Corner,Surat,North Indian,4.2,2019
+6,Kebab Nation,Ahmedabad,Mughlai,3.7,2017
+7,Burger Barn,Chennai,Seafood,4.7,2020
+8,Wok & Roll,Bengaluru,Thai,4.0,2012
+9,Curry Leaf,Bengaluru,Biryani,4.8,2013
+10,Tandoor Express,Delhi,South Indian,4.0,2013
+11,Sushi Maru,Pune,Mexican,3.8,2008
+12,Street Taco Co.,Jaipur,Japanese,3.6,2014
+13,Pav Bhaji Wala,Delhi,Japanese,3.8,2018
+14,Noodle Bar,Surat,Continental,3.9,2011
+15,Grillhouse,Delhi,North Indian,4.4,2020
+16,Punjabi Tadka,Chennai,South Indian,4.7,2021
+17,Meghna Sweets,Delhi,Mughlai,3.8,2018
+18,The Pasta Place,Pune,Chinese,4.0,2011
+19,Kathi Roll King,Chennai,Thai,4.8,2018
+20,Idli House,Delhi,Mexican,4.4,2016
+21,Fire & Ice,Hyderabad,Chinese,4.1,2012
+22,Malabar Coast,Ahmedabad,Biryani,4.4,2021
+23,Rajasthani Rasoi,Mumbai,Biryani,4.6,2020
+24,Thai Orchid,Pune,Mughlai,3.8,2011
+25,The Dhaba,Surat,Thai,3.9,2018
+26,Crust & Crumble,Jaipur,Mughlai,4.7,2018
+27,Andhra Spice,Jaipur,Chinese,3.8,2011
+28,Frankie Junction,Ahmedabad,Japanese,3.8,2017
+29,Saravana Bhavan Express,Kolkata,Mexican,4.0,2011
+30,Handi Hut,Bengaluru,Japanese,4.1,2020
+31,Bao Street,Mumbai,Continental,3.6,2018
+32,Zafrani Kitchen,Bengaluru,Seafood,4.4,2017
+33,Green Leaf Cafe,Delhi,Mughlai,4.0,2015
+34,Machali Bay,Ahmedabad,Italian,4.9,2021
+35,Peri Peri Hut,Mumbai,Street Food,4.5,2018
+36,Thali Express,Ahmedabad,Seafood,3.8,2018
+37,Bombay Sandwich Co.,Pune,South Indian,3.8,2010
+38,Mezze & More,Jaipur,North Indian,4.8,2019
+39,Chettinad House,Chennai,Japanese,4.5,2016
+40,The Waffle Cart,Delhi,Continental,4.3,2021
+41,Tiranga Bhoj,Ahmedabad,Mexican,3.7,2013
+42,Seoul Kitchen,Bengaluru,Japanese,4.8,2016
+43,Paratha Palace,Mumbai,Mexican,3.9,2008
+44,Coastal Catch,Delhi,Fast Food,4.7,2021
+45,Dim Sum Den,Chennai,Biryani,3.5,2017
+46,Mughlai Mahal,Delhi,South Indian,4.5,2021
+47,Upma Ustad,Delhi,Seafood,4.2,2010
+48,Southern Comfort,Bengaluru,Street Food,4.1,2016
+49,Rolls & Wraps,Bengaluru,Italian,4.2,2017
+50,The Curry Club,Kolkata,Biryani,4.8,2020
